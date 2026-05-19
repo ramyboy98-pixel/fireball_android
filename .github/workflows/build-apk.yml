@@ -53,8 +53,13 @@ jobs:
           cd ../fireball_build
           flutter build apk --debug --android-skip-build-dependency-validation
 
+      - name: Copy APK to artifacts folder
+        run: |
+          mkdir -p artifacts
+          cp ../fireball_build/build/app/outputs/flutter-apk/app-debug.apk artifacts/fireball-debug.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: fireball-debug-apk
-          path: ../fireball_build/build/app/outputs/flutter-apk/app-debug.apk
+          path: artifacts/fireball-debug.apk
