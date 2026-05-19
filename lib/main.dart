@@ -62,38 +62,33 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF05070D),
+      backgroundColor: const Color(0xFF161616),
       body: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 112,
-              height: 112,
+              width: 92,
+              height: 92,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const RadialGradient(
-                  colors: [
-                    Color(0xFFFFF176),
-                    Color(0xFFFF7043),
-                    Color(0xFFB71C1C),
-                  ],
-                ),
+                color: const Color(0xFFEAEAEA),
+                border: Border.all(color: Colors.black, width: 5),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.deepOrange.withOpacity(0.75),
-                    blurRadius: 48,
-                    spreadRadius: 6,
+                    color: Colors.black.withOpacity(0.45),
+                    blurRadius: 22,
+                    spreadRadius: 2,
                   ),
                 ],
               ),
               child: const Icon(
                 Icons.sports_soccer_rounded,
-                color: Colors.white,
-                size: 62,
+                color: Color(0xFF202020),
+                size: 48,
               ),
             ),
-            const SizedBox(width: 28),
+            const SizedBox(width: 24),
             const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,9 +96,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 Text(
                   'FIREBALL',
                   style: TextStyle(
-                    fontSize: 46,
+                    fontSize: 42,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 5,
+                    letterSpacing: 4,
                     color: Colors.white,
                   ),
                 ),
@@ -111,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 Text(
                   'Mohammed BELKEBIR ABDELKARIM',
                   style: TextStyle(
-                    color: Color(0xFFB8C1D1),
+                    color: Color(0xFFBDBDBD),
                     fontSize: 13,
                     letterSpacing: 1,
                   ),
@@ -135,60 +130,53 @@ class MainMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B12),
+      backgroundColor: const Color(0xFF191919),
       body: Padding(
-        padding: const EdgeInsets.all(26),
+        padding: const EdgeInsets.all(24),
         child: Row(
           children: [
             Expanded(
               flex: 5,
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(34),
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF111827),
-                      Color(0xFF020617),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(color: Colors.white12),
+                  borderRadius: BorderRadius.circular(18),
+                  color: const Color(0xFF242424),
+                  border: Border.all(color: const Color(0xFF555555), width: 1),
                 ),
-                padding: const EdgeInsets.all(32),
+                padding: const EdgeInsets.all(28),
                 child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Fireball',
                       style: TextStyle(
-                        fontSize: 52,
+                        fontSize: 48,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                       ),
                     ),
                     SizedBox(height: 10),
                     Text(
-                      'لعبة كرة قدم دائرية سريعة، تحكم مباشر، تمرير، تسديد، وملعب أفقي كامل.',
+                      'نسخة لعب أفقية بإحساس أقرب إلى ألعاب الدوائر الكلاسيكية: ملعب كامل، سرعة أهدأ، لاعبون أصغر، واحتكاك كرة طبيعي.',
                       style: TextStyle(
-                        fontSize: 19,
+                        fontSize: 18,
                         height: 1.5,
-                        color: Color(0xFFB8C1D1),
+                        color: Color(0xFFCFCFCF),
                       ),
                     ),
                     Spacer(),
                     Text(
-                      'نسخة تجريبية محسّنة',
+                      'Prototype v0.3',
                       style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF64748B),
+                        fontSize: 15,
+                        color: Color(0xFF9E9E9E),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: 22),
             Expanded(
               flex: 4,
               child: Column(
@@ -197,7 +185,7 @@ class MainMenuScreen extends StatelessWidget {
                   _MenuButton(
                     title: 'لعب تجريبي',
                     icon: Icons.play_arrow_rounded,
-                    color: const Color(0xFF2563EB),
+                    color: const Color(0xFF3D6FA7),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -205,25 +193,25 @@ class MainMenuScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   _MenuButton(
                     title: 'إنشاء غرفة Wi-Fi',
                     icon: Icons.wifi_tethering_rounded,
-                    color: const Color(0xFF15803D),
+                    color: const Color(0xFF4B7B45),
                     onTap: () => _soon(context),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   _MenuButton(
                     title: 'الانضمام إلى غرفة',
                     icon: Icons.group_add_rounded,
-                    color: const Color(0xFF7E22CE),
+                    color: const Color(0xFF74508E),
                     onTap: () => _soon(context),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   _MenuButton(
                     title: 'الإعدادات',
                     icon: Icons.tune_rounded,
-                    color: const Color(0xFF334155),
+                    color: const Color(0xFF555555),
                     onTap: () => _soon(context),
                   ),
                 ],
@@ -262,25 +250,25 @@ class _MenuButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: color,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Container(
-          height: 72,
-          padding: const EdgeInsets.symmetric(horizontal: 22),
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: [
-              Icon(icon, color: Colors.white, size: 34),
-              const SizedBox(width: 16),
+              Icon(icon, color: Colors.white, size: 30),
+              const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   title,
                   textAlign: TextAlign.right,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 21,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -325,7 +313,7 @@ class _GameScreenState extends State<GameScreen>
       final dt = (elapsed - last).inMicroseconds / 1000000.0;
       last = elapsed;
 
-      world.update(dt.clamp(0.0, 1 / 30));
+      world.update(dt.clamp(0.0, 1 / 45));
       setState(() {});
     });
 
@@ -343,7 +331,7 @@ class _GameScreenState extends State<GameScreen>
     return PopScope(
       canPop: true,
       child: Scaffold(
-        backgroundColor: const Color(0xFF020617),
+        backgroundColor: const Color(0xFF303030),
         body: LayoutBuilder(
           builder: (context, constraints) {
             final size = Size(
@@ -407,7 +395,7 @@ class PlayerDisk {
   Offset pos;
   Offset vel = Offset.zero;
 
-  double radius = 23;
+  double radius = 15;
 }
 
 // ============================================================
@@ -420,8 +408,11 @@ class FireballWorld {
   double fieldWidth = 1000;
   double fieldHeight = 540;
 
-  final double border = 18;
-  final double ballRadius = 13;
+  // الملعب الآن يبدأ من حافة الهاتف إلى حافة الهاتف.
+  final double border = 0;
+
+  double playerRadius = 15;
+  double ballRadius = 8.5;
 
   Offset ball = Offset.zero;
   Offset ballVelocity = Offset.zero;
@@ -450,6 +441,14 @@ class FireballWorld {
     fieldWidth = size.width;
     fieldHeight = size.height;
 
+    // أحجام أقرب إلى Haxball: لاعبون أصغر بكثير وسرعة أهدأ.
+    playerRadius = min(fieldWidth, fieldHeight) * 0.034;
+    ballRadius = min(fieldWidth, fieldHeight) * 0.020;
+
+    for (final p in players) {
+      p.radius = playerRadius;
+    }
+
     _updateButtons();
 
     if (!initialized && size.width > 0 && size.height > 0) {
@@ -467,7 +466,7 @@ class FireballWorld {
         id: 0,
         name: 'YOU',
         team: Team.red,
-        color: const Color(0xFFE11D48),
+        color: const Color(0xFFD84343),
         isUser: true,
         pos: Offset.zero,
       ),
@@ -476,9 +475,9 @@ class FireballWorld {
     players.add(
       PlayerDisk(
         id: 1,
-        name: 'RED 2',
+        name: 'R2',
         team: Team.red,
-        color: const Color(0xFFFB7185),
+        color: const Color(0xFFE57373),
         isUser: false,
         pos: Offset.zero,
       ),
@@ -487,9 +486,9 @@ class FireballWorld {
     players.add(
       PlayerDisk(
         id: 2,
-        name: 'BLUE 1',
+        name: 'B1',
         team: Team.blue,
-        color: const Color(0xFF2563EB),
+        color: const Color(0xFF3F70C8),
         isUser: false,
         pos: Offset.zero,
       ),
@@ -498,13 +497,17 @@ class FireballWorld {
     players.add(
       PlayerDisk(
         id: 3,
-        name: 'BLUE 2',
+        name: 'B2',
         team: Team.blue,
-        color: const Color(0xFF60A5FA),
+        color: const Color(0xFF64A2E8),
         isUser: false,
         pos: Offset.zero,
       ),
     );
+
+    for (final p in players) {
+      p.radius = playerRadius;
+    }
   }
 
   void resetPositions({bool fullReset = false}) {
@@ -512,10 +515,10 @@ class FireballWorld {
     ballVelocity = Offset.zero;
     holderId = null;
 
-    players[0].pos = Offset(fieldWidth * 0.28, fieldHeight * 0.5);
-    players[1].pos = Offset(fieldWidth * 0.34, fieldHeight * 0.28);
-    players[2].pos = Offset(fieldWidth * 0.72, fieldHeight * 0.5);
-    players[3].pos = Offset(fieldWidth * 0.66, fieldHeight * 0.72);
+    players[0].pos = Offset(fieldWidth * 0.30, fieldHeight * 0.50);
+    players[1].pos = Offset(fieldWidth * 0.38, fieldHeight * 0.34);
+    players[2].pos = Offset(fieldWidth * 0.70, fieldHeight * 0.50);
+    players[3].pos = Offset(fieldWidth * 0.62, fieldHeight * 0.66);
 
     for (final p in players) {
       p.vel = Offset.zero;
@@ -540,15 +543,16 @@ class FireballWorld {
   }
 
   void _updateUser(double dt) {
-    final speed = fieldWidth * 0.72;
+    // سرعة أهدأ بكثير من النسخة السابقة.
+    final speed = fieldWidth * 0.38;
 
     if (_length(joystickVector) > 0.05) {
       final dir = _normalize(joystickVector);
       lastAim = dir;
       user.vel = dir * speed;
     } else {
-      user.vel = user.vel * 0.80;
-      if (_length(user.vel) < 5) user.vel = Offset.zero;
+      user.vel = user.vel * 0.86;
+      if (_length(user.vel) < 4) user.vel = Offset.zero;
     }
 
     user.pos += user.vel * dt;
@@ -560,34 +564,34 @@ class FireballWorld {
     final blue1 = players[2];
     final blue2 = players[3];
 
-    final support = Offset(fieldWidth * 0.58, fieldHeight * 0.34);
-    _moveAI(redMate, support, dt, 0.62);
+    final support = Offset(fieldWidth * 0.55, fieldHeight * 0.34);
+    _moveAI(redMate, support, dt, 0.34);
 
     final target = holderId == null ? ball : _holder().pos;
 
     _moveAI(
       blue1,
-      target + Offset(-fieldWidth * 0.04, -fieldHeight * 0.05),
+      target + Offset(-fieldWidth * 0.035, -fieldHeight * 0.035),
       dt,
-      0.70,
+      0.36,
     );
 
     _moveAI(
       blue2,
-      target + Offset(-fieldWidth * 0.07, fieldHeight * 0.10),
+      target + Offset(-fieldWidth * 0.055, fieldHeight * 0.075),
       dt,
-      0.66,
+      0.33,
     );
 
     if (holderId == blue1.id || holderId == blue2.id) {
       final h = _holder();
-      final goal = Offset(border, fieldHeight * 0.5);
+      final goal = Offset(0, fieldHeight * 0.5);
       final dir = _normalize(goal - h.pos);
 
-      h.vel = dir * fieldWidth * 0.48;
+      h.vel = dir * fieldWidth * 0.25;
 
-      if (h.pos.dx < fieldWidth * 0.48) {
-        _releaseBall(dir * fieldWidth * 1.08);
+      if (h.pos.dx < fieldWidth * 0.44) {
+        _releaseBall(dir * fieldWidth * 0.74);
       }
     }
   }
@@ -596,11 +600,11 @@ class FireballWorld {
     final to = target - p.pos;
     final distance = _length(to);
 
-    if (distance > 10) {
+    if (distance > 8) {
       final dir = _normalize(to);
       p.vel = dir * fieldWidth * speedFactor;
     } else {
-      p.vel *= 0.70;
+      p.vel *= 0.78;
     }
 
     p.pos += p.vel * dt;
@@ -615,7 +619,7 @@ class FireballWorld {
 
         final diff = b.pos - a.pos;
         final dist = _length(diff);
-        final minDist = a.radius + b.radius + 2;
+        final minDist = a.radius + b.radius + 1.2;
 
         if (dist > 0 && dist < minDist) {
           final n = _normalize(diff);
@@ -635,35 +639,37 @@ class FireballWorld {
     if (holderId != null) return;
 
     ball += ballVelocity * dt;
-    ballVelocity *= pow(0.988, dt * 60).toDouble();
 
-    if (_length(ballVelocity) < 6) {
+    // احتكاك أقوى قليلا حتى لا تكون الكرة مجنونة وسريعة.
+    ballVelocity *= pow(0.974, dt * 60).toDouble();
+
+    if (_length(ballVelocity) < 4) {
       ballVelocity = Offset.zero;
     }
 
-    final goalTop = fieldHeight * 0.5 - fieldHeight * 0.17;
-    final goalBottom = fieldHeight * 0.5 + fieldHeight * 0.17;
+    final goalTop = fieldHeight * 0.5 - fieldHeight * 0.18;
+    final goalBottom = fieldHeight * 0.5 + fieldHeight * 0.18;
     final insideGoal = ball.dy > goalTop && ball.dy < goalBottom;
 
-    if (ball.dy - ballRadius < border) {
-      ball = Offset(ball.dx, border + ballRadius);
-      ballVelocity = Offset(ballVelocity.dx, -ballVelocity.dy * 0.82);
+    if (ball.dy - ballRadius < 0) {
+      ball = Offset(ball.dx, ballRadius);
+      ballVelocity = Offset(ballVelocity.dx, -ballVelocity.dy * 0.78);
     }
 
-    if (ball.dy + ballRadius > fieldHeight - border) {
-      ball = Offset(ball.dx, fieldHeight - border - ballRadius);
-      ballVelocity = Offset(ballVelocity.dx, -ballVelocity.dy * 0.82);
+    if (ball.dy + ballRadius > fieldHeight) {
+      ball = Offset(ball.dx, fieldHeight - ballRadius);
+      ballVelocity = Offset(ballVelocity.dx, -ballVelocity.dy * 0.78);
     }
 
     if (!insideGoal) {
-      if (ball.dx - ballRadius < border) {
-        ball = Offset(border + ballRadius, ball.dy);
-        ballVelocity = Offset(-ballVelocity.dx * 0.82, ballVelocity.dy);
+      if (ball.dx - ballRadius < 0) {
+        ball = Offset(ballRadius, ball.dy);
+        ballVelocity = Offset(-ballVelocity.dx * 0.78, ballVelocity.dy);
       }
 
-      if (ball.dx + ballRadius > fieldWidth - border) {
-        ball = Offset(fieldWidth - border - ballRadius, ball.dy);
-        ballVelocity = Offset(-ballVelocity.dx * 0.82, ballVelocity.dy);
+      if (ball.dx + ballRadius > fieldWidth) {
+        ball = Offset(fieldWidth - ballRadius, ball.dy);
+        ballVelocity = Offset(-ballVelocity.dx * 0.78, ballVelocity.dy);
       }
     }
   }
@@ -676,7 +682,7 @@ class FireballWorld {
 
     for (final p in players) {
       final d = _length(ball - p.pos);
-      final takeDistance = p.radius + ballRadius + 16;
+      final takeDistance = p.radius + ballRadius + 7;
 
       if (d < takeDistance && d < best) {
         best = d;
@@ -700,8 +706,8 @@ class FireballWorld {
       aim = _length(joystickVector) > 0.05 ? _normalize(joystickVector) : lastAim;
     } else {
       final enemyGoal = h.team == Team.red
-          ? Offset(fieldWidth - border, fieldHeight * 0.5)
-          : Offset(border, fieldHeight * 0.5);
+          ? Offset(fieldWidth, fieldHeight * 0.5)
+          : Offset(0, fieldHeight * 0.5);
       aim = _normalize(enemyGoal - h.pos);
     }
 
@@ -709,23 +715,24 @@ class FireballWorld {
       aim = h.team == Team.red ? const Offset(1, 0) : const Offset(-1, 0);
     }
 
-    final carryDistance = h.radius + ballRadius + 6;
+    // الكرة تبقى أمام اللاعب بمسافة صغيرة، لا تلصق ولا تهرب.
+    final carryDistance = h.radius + ballRadius + 2.5;
     ball = h.pos + aim * carryDistance;
   }
 
   void _checkGoals() {
-    final goalTop = fieldHeight * 0.5 - fieldHeight * 0.17;
-    final goalBottom = fieldHeight * 0.5 + fieldHeight * 0.17;
+    final goalTop = fieldHeight * 0.5 - fieldHeight * 0.18;
+    final goalBottom = fieldHeight * 0.5 + fieldHeight * 0.18;
     final inGoalY = ball.dy > goalTop && ball.dy < goalBottom;
 
     if (!inGoalY) return;
 
-    if (ball.dx < 4) {
+    if (ball.dx < -ballRadius * 0.2) {
       blueScore++;
       resetPositions();
     }
 
-    if (ball.dx > fieldWidth - 4) {
+    if (ball.dx > fieldWidth + ballRadius * 0.2) {
       redScore++;
       resetPositions();
     }
@@ -745,25 +752,25 @@ class FireballWorld {
     final dir = _normalize(mate.pos - ball);
 
     holderId = null;
-    ballVelocity = dir * fieldWidth * 1.18;
+    ballVelocity = dir * fieldWidth * 0.66;
   }
 
   void shoot({required bool power}) {
     if (!_userCanKick()) return;
 
-    final goal = Offset(fieldWidth - border, fieldHeight * 0.5);
+    final goal = Offset(fieldWidth, fieldHeight * 0.5);
 
     Offset dir;
 
     if (_length(joystickVector) > 0.08) {
       final manual = _normalize(joystickVector);
       final toGoal = _normalize(goal - ball);
-      dir = _normalize(manual * 0.65 + toGoal * 0.35);
+      dir = _normalize(manual * 0.72 + toGoal * 0.28);
     } else {
       dir = _normalize(goal - ball);
     }
 
-    final force = power ? fieldWidth * 1.95 : fieldWidth * 1.35;
+    final force = power ? fieldWidth * 1.08 : fieldWidth * 0.82;
 
     holderId = null;
     ballVelocity = dir * force;
@@ -773,7 +780,7 @@ class FireballWorld {
     if (holderId == user.id) return true;
 
     final d = _length(ball - user.pos);
-    return d < user.radius + ballRadius + 24;
+    return d < user.radius + ballRadius + 14;
   }
 
   void _releaseBall(Offset velocity) {
@@ -805,7 +812,7 @@ class FireballWorld {
 
     final joyCenter = _joystickCenter();
 
-    if (_length(position - joyCenter) < fieldHeight * 0.26) {
+    if (_length(position - joyCenter) < fieldHeight * 0.24) {
       joystickPointer = pointer;
       _updateJoystick(position);
     }
@@ -825,13 +832,13 @@ class FireballWorld {
   }
 
   Offset _joystickCenter() {
-    return Offset(fieldWidth * 0.13, fieldHeight * 0.76);
+    return Offset(fieldWidth * 0.13, fieldHeight * 0.77);
   }
 
   void _updateJoystick(Offset position) {
     final center = _joystickCenter();
     final delta = position - center;
-    final maxDistance = fieldHeight * 0.115;
+    final maxDistance = fieldHeight * 0.105;
 
     if (_length(delta) > maxDistance) {
       joystickVector = _normalize(delta);
@@ -841,28 +848,28 @@ class FireballWorld {
   }
 
   void _updateButtons() {
-    final r = fieldHeight * 0.105;
+    final r = fieldHeight * 0.092;
 
     shootButton = Rect.fromCircle(
-      center: Offset(fieldWidth * 0.87, fieldHeight * 0.72),
+      center: Offset(fieldWidth * 0.88, fieldHeight * 0.73),
       radius: r,
     );
 
     passButton = Rect.fromCircle(
-      center: Offset(fieldWidth * 0.74, fieldHeight * 0.80),
-      radius: r * 0.82,
+      center: Offset(fieldWidth * 0.76, fieldHeight * 0.80),
+      radius: r * 0.80,
     );
 
     powerButton = Rect.fromCircle(
-      center: Offset(fieldWidth * 0.76, fieldHeight * 0.56),
-      radius: r * 0.86,
+      center: Offset(fieldWidth * 0.77, fieldHeight * 0.58),
+      radius: r * 0.82,
     );
   }
 
   Offset _clampInside(Offset p, double radius) {
     return Offset(
-      p.dx.clamp(border + radius, fieldWidth - border - radius).toDouble(),
-      p.dy.clamp(border + radius, fieldHeight - border - radius).toDouble(),
+      p.dx.clamp(radius, fieldWidth - radius).toDouble(),
+      p.dy.clamp(radius, fieldHeight - radius).toDouble(),
     );
   }
 
@@ -888,7 +895,6 @@ class FireballPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    _drawBackground(canvas);
     _drawField(canvas);
     _drawGoals(canvas);
     _drawScore(canvas);
@@ -897,94 +903,53 @@ class FireballPainter extends CustomPainter {
     _drawControls(canvas);
   }
 
-  void _drawBackground(Canvas canvas) {
-    final rect = Rect.fromLTWH(0, 0, world.fieldWidth, world.fieldHeight);
-
-    final paint = Paint()
-      ..shader = const LinearGradient(
-        colors: [
-          Color(0xFF0F172A),
-          Color(0xFF020617),
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(rect);
-
-    canvas.drawRect(rect, paint);
-  }
-
   void _drawField(Canvas canvas) {
-    final grass = Paint()
-      ..shader = const LinearGradient(
-        colors: [
-          Color(0xFF166534),
-          Color(0xFF15803D),
-          Color(0xFF166534),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(
-        Rect.fromLTWH(0, 0, world.fieldWidth, world.fieldHeight),
-      );
-
+    // لون قريب من ملاعب Haxball الكلاسيكية: أخضر مسطح بدون فخامة زائدة.
     canvas.drawRect(
       Rect.fromLTWH(0, 0, world.fieldWidth, world.fieldHeight),
-      grass,
+      Paint()..color = const Color(0xFF5C8F4B),
     );
 
-    final stripePaint = Paint()..color = Colors.white.withOpacity(0.035);
-
-    final stripeWidth = world.fieldWidth / 10;
-    for (int i = 0; i < 10; i++) {
-      if (i.isEven) {
-        canvas.drawRect(
-          Rect.fromLTWH(i * stripeWidth, 0, stripeWidth, world.fieldHeight),
-          stripePaint,
-        );
-      }
-    }
-
     final line = Paint()
-      ..color = Colors.white.withOpacity(0.88)
-      ..strokeWidth = 3.2
+      ..color = Colors.white.withOpacity(0.92)
+      ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke;
 
     final thin = Paint()
-      ..color = Colors.white.withOpacity(0.70)
-      ..strokeWidth = 2.0
+      ..color = Colors.white.withOpacity(0.75)
+      ..strokeWidth = 1.7
       ..style = PaintingStyle.stroke;
 
-    final b = world.border;
-
+    // حدود الملعب على حواف الهاتف تماما.
     canvas.drawRect(
-      Rect.fromLTWH(b, b, world.fieldWidth - b * 2, world.fieldHeight - b * 2),
+      Rect.fromLTWH(0, 0, world.fieldWidth, world.fieldHeight),
       line,
     );
 
     canvas.drawLine(
-      Offset(world.fieldWidth / 2, b),
-      Offset(world.fieldWidth / 2, world.fieldHeight - b),
+      Offset(world.fieldWidth / 2, 0),
+      Offset(world.fieldWidth / 2, world.fieldHeight),
       thin,
     );
 
     canvas.drawCircle(
       Offset(world.fieldWidth / 2, world.fieldHeight / 2),
-      world.fieldHeight * 0.18,
+      world.fieldHeight * 0.17,
       thin,
     );
 
     canvas.drawCircle(
       Offset(world.fieldWidth / 2, world.fieldHeight / 2),
-      4,
+      3.5,
       Paint()..color = Colors.white.withOpacity(0.9),
     );
 
-    final boxW = world.fieldWidth * 0.15;
-    final boxH = world.fieldHeight * 0.42;
+    final boxW = world.fieldWidth * 0.13;
+    final boxH = world.fieldHeight * 0.40;
 
     canvas.drawRect(
       Rect.fromCenter(
-        center: Offset(b + boxW / 2, world.fieldHeight / 2),
+        center: Offset(boxW / 2, world.fieldHeight / 2),
         width: boxW,
         height: boxH,
       ),
@@ -993,7 +958,7 @@ class FireballPainter extends CustomPainter {
 
     canvas.drawRect(
       Rect.fromCenter(
-        center: Offset(world.fieldWidth - b - boxW / 2, world.fieldHeight / 2),
+        center: Offset(world.fieldWidth - boxW / 2, world.fieldHeight / 2),
         width: boxW,
         height: boxH,
       ),
@@ -1002,42 +967,42 @@ class FireballPainter extends CustomPainter {
   }
 
   void _drawGoals(Canvas canvas) {
-    final goalTop = world.fieldHeight * 0.5 - world.fieldHeight * 0.17;
-    final goalBottom = world.fieldHeight * 0.5 + world.fieldHeight * 0.17;
+    final goalTop = world.fieldHeight * 0.5 - world.fieldHeight * 0.18;
+    final goalBottom = world.fieldHeight * 0.5 + world.fieldHeight * 0.18;
 
     final redGoal = Paint()
-      ..color = const Color(0xFFFB7185)
-      ..strokeWidth = 8
+      ..color = const Color(0xFFD84343)
+      ..strokeWidth = 7
       ..style = PaintingStyle.stroke;
 
     final blueGoal = Paint()
-      ..color = const Color(0xFF60A5FA)
-      ..strokeWidth = 8
+      ..color = const Color(0xFF3F70C8)
+      ..strokeWidth = 7
       ..style = PaintingStyle.stroke;
 
     canvas.drawLine(
-      Offset(world.border, goalTop),
-      Offset(world.border, goalBottom),
+      Offset(0, goalTop),
+      Offset(0, goalBottom),
       redGoal,
     );
 
     canvas.drawLine(
-      Offset(world.fieldWidth - world.border, goalTop),
-      Offset(world.fieldWidth - world.border, goalBottom),
+      Offset(world.fieldWidth, goalTop),
+      Offset(world.fieldWidth, goalBottom),
       blueGoal,
     );
   }
 
   void _drawScore(Canvas canvas) {
     final panel = Rect.fromCenter(
-      center: Offset(world.fieldWidth / 2, world.fieldHeight * 0.09),
-      width: world.fieldWidth * 0.25,
-      height: world.fieldHeight * 0.105,
+      center: Offset(world.fieldWidth / 2, world.fieldHeight * 0.075),
+      width: world.fieldWidth * 0.20,
+      height: world.fieldHeight * 0.080,
     );
 
     canvas.drawRRect(
-      RRect.fromRectAndRadius(panel, const Radius.circular(18)),
-      Paint()..color = Colors.black.withOpacity(0.34),
+      RRect.fromRectAndRadius(panel, const Radius.circular(8)),
+      Paint()..color = Colors.black.withOpacity(0.30),
     );
 
     _centerText(
@@ -1045,25 +1010,7 @@ class FireballPainter extends CustomPainter {
       '${world.redScore}  -  ${world.blueScore}',
       panel.center,
       Colors.white,
-      world.fieldHeight * 0.055,
-      FontWeight.w900,
-    );
-
-    _centerText(
-      canvas,
-      'RED',
-      Offset(panel.left + panel.width * 0.22, panel.bottom + 12),
-      const Color(0xFFFF8A9A),
-      world.fieldHeight * 0.024,
-      FontWeight.w900,
-    );
-
-    _centerText(
-      canvas,
-      'BLUE',
-      Offset(panel.right - panel.width * 0.22, panel.bottom + 12),
-      const Color(0xFF93C5FD),
-      world.fieldHeight * 0.024,
+      world.fieldHeight * 0.043,
       FontWeight.w900,
     );
   }
@@ -1076,21 +1023,13 @@ class FireballPainter extends CustomPainter {
 
   void _drawPlayer(Canvas canvas, PlayerDisk p) {
     final shadow = Paint()
-      ..color = Colors.black.withOpacity(0.35)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 8);
+      ..color = Colors.black.withOpacity(0.25)
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4);
 
-    canvas.drawCircle(p.pos + const Offset(3, 4), p.radius, shadow);
+    canvas.drawCircle(p.pos + const Offset(2, 2), p.radius, shadow);
 
     final body = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          Color.lerp(p.color, Colors.white, 0.25)!,
-          p.color,
-          Color.lerp(p.color, Colors.black, 0.35)!,
-        ],
-      ).createShader(
-        Rect.fromCircle(center: p.pos, radius: p.radius),
-      );
+      ..color = p.color;
 
     canvas.drawCircle(p.pos, p.radius, body);
 
@@ -1098,18 +1037,18 @@ class FireballPainter extends CustomPainter {
       p.pos,
       p.radius,
       Paint()
-        ..color = Colors.white.withOpacity(0.88)
-        ..strokeWidth = 2.3
+        ..color = Colors.white.withOpacity(0.85)
+        ..strokeWidth = 1.8
         ..style = PaintingStyle.stroke,
     );
 
     if (world.holderId == p.id) {
       canvas.drawCircle(
         p.pos,
-        p.radius + 5,
+        p.radius + 3.5,
         Paint()
-          ..color = Colors.yellowAccent.withOpacity(0.85)
-          ..strokeWidth = 2.2
+          ..color = Colors.yellowAccent.withOpacity(0.82)
+          ..strokeWidth = 1.7
           ..style = PaintingStyle.stroke,
       );
     }
@@ -1117,99 +1056,89 @@ class FireballPainter extends CustomPainter {
     _centerText(
       canvas,
       p.name,
-      Offset(p.pos.dx, p.pos.dy - p.radius - 12),
+      Offset(p.pos.dx, p.pos.dy - p.radius - 8),
       Colors.white,
-      world.fieldHeight * 0.026,
-      FontWeight.w900,
+      world.fieldHeight * 0.022,
+      FontWeight.w800,
     );
   }
 
   void _drawBall(Canvas canvas) {
     final shadow = Paint()
-      ..color = Colors.black.withOpacity(0.40)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 8);
+      ..color = Colors.black.withOpacity(0.30)
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4);
 
-    canvas.drawCircle(world.ball + const Offset(3, 4), world.ballRadius, shadow);
+    canvas.drawCircle(world.ball + const Offset(2, 2), world.ballRadius, shadow);
 
-    final ballPaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          Colors.white,
-          Colors.grey.shade300,
-          Colors.grey.shade700,
-        ],
-      ).createShader(
-        Rect.fromCircle(
-          center: world.ball,
-          radius: world.ballRadius,
-        ),
-      );
-
-    canvas.drawCircle(world.ball, world.ballRadius, ballPaint);
+    canvas.drawCircle(
+      world.ball,
+      world.ballRadius,
+      Paint()..color = const Color(0xFFECECEC),
+    );
 
     canvas.drawCircle(
       world.ball,
       world.ballRadius,
       Paint()
         ..color = Colors.black.withOpacity(0.55)
-        ..strokeWidth = 1.6
+        ..strokeWidth = 1.2
         ..style = PaintingStyle.stroke,
     );
   }
 
   void _drawControls(Canvas canvas) {
     final joyCenter = world._joystickCenter();
-    final joyRadius = world.fieldHeight * 0.115;
+    final joyRadius = world.fieldHeight * 0.105;
 
     canvas.drawCircle(
       joyCenter,
       joyRadius,
-      Paint()..color = Colors.black.withOpacity(0.28),
+      Paint()..color = Colors.black.withOpacity(0.18),
     );
 
     canvas.drawCircle(
       joyCenter,
       joyRadius,
       Paint()
-        ..color = Colors.white.withOpacity(0.20)
-        ..strokeWidth = 3
+        ..color = Colors.white.withOpacity(0.22)
+        ..strokeWidth = 2
         ..style = PaintingStyle.stroke,
     );
 
     Offset knob = joyCenter;
 
     if (world._length(world.joystickVector) > 0) {
-      knob += world.joystickVector * (joyRadius * 0.62);
+      knob += world.joystickVector * (joyRadius * 0.60);
     }
 
     canvas.drawCircle(
       knob,
-      joyRadius * 0.42,
-      Paint()..color = Colors.white.withOpacity(0.38),
+      joyRadius * 0.38,
+      Paint()..color = Colors.white.withOpacity(0.34),
     );
 
     _drawButton(
       canvas,
       world.shootButton,
-      'SHOT',
-      const Color(0xFFE11D48),
-      world.fieldHeight * 0.030,
+      'KICK',
+      const Color(0xFFD84343),
+      world.fieldHeight * 0.027,
     );
 
     _drawButton(
       canvas,
       world.passButton,
       'PASS',
-      const Color(0xFF2563EB),
-      world.fieldHeight * 0.025,
+      const Color(0xFF3F70C8),
+      world.fieldHeight * 0.023,
     );
 
     _drawButton(
       canvas,
       world.powerButton,
       'POWER',
-      const Color(0xFFF97316),
-      world.fieldHeight * 0.023,
+      const Color(0xFFE28A38),
+      world.fieldHeight * 0.021,
     );
   }
 
@@ -1223,21 +1152,21 @@ class FireballPainter extends CustomPainter {
     canvas.drawCircle(
       rect.center,
       rect.width / 2,
-      Paint()..color = Colors.black.withOpacity(0.25),
+      Paint()..color = Colors.black.withOpacity(0.20),
     );
 
     canvas.drawCircle(
       rect.center,
-      rect.width / 2 - 3,
-      Paint()..color = color.withOpacity(0.88),
+      rect.width / 2 - 2,
+      Paint()..color = color.withOpacity(0.82),
     );
 
     canvas.drawCircle(
       rect.center,
-      rect.width / 2 - 3,
+      rect.width / 2 - 2,
       Paint()
-        ..color = Colors.white.withOpacity(0.32)
-        ..strokeWidth = 2.5
+        ..color = Colors.white.withOpacity(0.28)
+        ..strokeWidth = 2
         ..style = PaintingStyle.stroke,
     );
 
@@ -1269,7 +1198,7 @@ class FireballPainter extends CustomPainter {
           shadows: const [
             Shadow(
               color: Colors.black54,
-              blurRadius: 5,
+              blurRadius: 4,
               offset: Offset(1, 1),
             ),
           ],
