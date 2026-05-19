@@ -157,7 +157,7 @@ class MainMenuScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      'نسخة لعب أفقية بإحساس أقرب إلى ألعاب الدوائر الكلاسيكية: ملعب كامل، سرعة أهدأ، لاعبون أصغر، واحتكاك كرة طبيعي.',
+                      'نسخة لعب أبطأ وأكثر منطقية: مراوغة، دفاع، نزع كرة، تمرير موجه، وتسديد مضبوط.',
                       style: TextStyle(
                         fontSize: 18,
                         height: 1.5,
@@ -166,7 +166,7 @@ class MainMenuScreen extends StatelessWidget {
                     ),
                     Spacer(),
                     Text(
-                      'Prototype v0.3',
+                      'Prototype v0.4 - Slow tactical control',
                       style: TextStyle(
                         fontSize: 15,
                         color: Color(0xFF9E9E9E),
@@ -313,7 +313,7 @@ class _GameScreenState extends State<GameScreen>
       final dt = (elapsed - last).inMicroseconds / 1000000.0;
       last = elapsed;
 
-      world.update(dt.clamp(0.0, 1 / 45));
+      world.update(dt.clamp(0.0, 1 / 50));
       setState(() {});
     });
 
@@ -394,8 +394,12 @@ class PlayerDisk {
 
   Offset pos;
   Offset vel = Offset.zero;
+  Offset desiredDir = Offset.zero;
 
   double radius = 15;
+
+  double stealCooldown = 0;
+  double tackleCooldown = 0;
 }
 
 // ============================================================
@@ -408,7 +412,6 @@ class FireballWorld {
   double fieldWidth = 1000;
   double fieldHeight = 540;
 
-  // الملعب الآن يبدأ من حافة الهاتف إلى حافة الهاتف.
   final double border = 0;
 
   double playerRadius = 15;
@@ -428,22 +431,27 @@ class FireballWorld {
 
   final List<PlayerDisk> players = [];
 
-  Rect shootButton = Rect.zero;
+  Rect kickButton = Rect.zero;
   Rect passButton = Rect.zero;
   Rect powerButton = Rect.zero;
+  Rect stealButton = Rect.zero;
 
   bool initialized = false;
 
   PlayerDisk get user => players.firstWhere((p) => p.isUser);
+
+  PlayerDisk? get holder {
+    if (holderId == null) return null;
+    return players.firstWhere((p) => p.id == holderId);
+  }
 
   void resize(Size size) {
     screen = size;
     fieldWidth = size.width;
     fieldHeight = size.height;
 
-    // أحجام أقرب إلى Haxball: لاعبون أصغر بكثير وسرعة أهدأ.
-    playerRadius = min(fieldWidth, fieldHeight) * 0.034;
-    ballRadius = min(fieldWidth, fieldHeight) * 0.020;
+    playerRadius = min(fieldWidth, fieldHeight) * 0.032;
+    ballRadius = min(fieldWidth, fieldHeight) * 0.019;
 
     for (final p in players) {
       p.radius = playerRadius;
@@ -522,6 +530,9 @@ class FireballWorld {
 
     for (final p in players) {
       p.vel = Offset.zero;
+      p.desiredDir = Offset.zero;
+      p.stealCooldown = 0;
+      p.tackleCooldown = 0;
     }
 
     if (fullReset) {
@@ -533,26 +544,45 @@ class FireballWorld {
   void update(double dt) {
     if (!initialized) return;
 
+    for (final p in players) {
+      p.stealCooldown = max(0, p.stealCooldown - dt);
+      p.tackleCooldown = max(0, p.tackleCooldown - dt);
+    }
+
     _updateUser(dt);
     _updateAI(dt);
     _resolvePlayerCollisions();
     _updateBall(dt);
-    _tryTakePossession();
+    _tryTakeFreeBall();
     _updatePossessionBall();
+    _autoDefensivePressure();
     _checkGoals();
   }
 
+  // ============================================================
+  // MOVEMENT: slower and smoother
+  // ============================================================
+
   void _updateUser(double dt) {
-    // سرعة أهدأ بكثير من النسخة السابقة.
-    final speed = fieldWidth * 0.38;
+    // سرعة أبطأ ومنطقية: اللاعب لا يطير فوق الملعب.
+    final maxSpeed = fieldWidth * 0.285;
+    final acceleration = fieldWidth * 1.60;
+    final friction = 7.8;
+
+    Offset desired = Offset.zero;
 
     if (_length(joystickVector) > 0.05) {
-      final dir = _normalize(joystickVector);
-      lastAim = dir;
-      user.vel = dir * speed;
+      desired = _normalize(joystickVector);
+      lastAim = desired;
+    }
+
+    user.desiredDir = desired;
+
+    if (_length(desired) > 0) {
+      final targetVel = desired * maxSpeed;
+      user.vel = _moveTowardVelocity(user.vel, targetVel, acceleration * dt);
     } else {
-      user.vel = user.vel * 0.86;
-      if (_length(user.vel) < 4) user.vel = Offset.zero;
+      user.vel = _moveTowardVelocity(user.vel, Offset.zero, maxSpeed * friction * dt);
     }
 
     user.pos += user.vel * dt;
@@ -564,34 +594,59 @@ class FireballWorld {
     final blue1 = players[2];
     final blue2 = players[3];
 
-    final support = Offset(fieldWidth * 0.55, fieldHeight * 0.34);
-    _moveAI(redMate, support, dt, 0.34);
+    final ballOrHolder = holderId == null ? ball : holder!.pos;
 
-    final target = holderId == null ? ball : _holder().pos;
+    // الزميل يفتح زاوية تمرير بدل الوقوف في مكان واحد.
+    final supportY = user.pos.dy < fieldHeight * 0.5
+        ? fieldHeight * 0.68
+        : fieldHeight * 0.32;
+    final support = Offset(fieldWidth * 0.54, supportY);
+    _moveAI(redMate, support, dt, 0.245);
+
+    // المدافع الأقرب يضغط، الثاني يغطي المساحة.
+    final d1 = _length(blue1.pos - ballOrHolder);
+    final d2 = _length(blue2.pos - ballOrHolder);
+
+    final presser = d1 <= d2 ? blue1 : blue2;
+    final cover = d1 <= d2 ? blue2 : blue1;
 
     _moveAI(
-      blue1,
-      target + Offset(-fieldWidth * 0.035, -fieldHeight * 0.035),
+      presser,
+      ballOrHolder,
       dt,
-      0.36,
+      0.255,
     );
 
     _moveAI(
-      blue2,
-      target + Offset(-fieldWidth * 0.055, fieldHeight * 0.075),
+      cover,
+      Offset(fieldWidth * 0.57, fieldHeight * 0.5),
       dt,
-      0.33,
+      0.220,
     );
 
+    // الخصم يستطيع نزع الكرة من الأحمر إذا اقترب من حامل الكرة.
+    for (final defender in [blue1, blue2]) {
+      if (holderId != null && holder!.team != defender.team) {
+        final d = _length(defender.pos - holder!.pos);
+        final facing = _isFacing(defender, holder!.pos);
+
+        if (d < defender.radius + holder!.radius + 5 && defender.stealCooldown == 0 && facing) {
+          _stealBall(defender);
+        }
+      }
+    }
+
+    // إذا حمل الأزرق الكرة، يتحرك نحو مرمى الأحمر ويسدد عند الاقتراب.
     if (holderId == blue1.id || holderId == blue2.id) {
-      final h = _holder();
+      final h = holder!;
       final goal = Offset(0, fieldHeight * 0.5);
       final dir = _normalize(goal - h.pos);
 
-      h.vel = dir * fieldWidth * 0.25;
+      h.desiredDir = dir;
+      h.vel = _moveTowardVelocity(h.vel, dir * fieldWidth * 0.240, fieldWidth * 1.10 * dt);
 
-      if (h.pos.dx < fieldWidth * 0.44) {
-        _releaseBall(dir * fieldWidth * 0.74);
+      if (h.pos.dx < fieldWidth * 0.43) {
+        _releaseBall(dir * fieldWidth * 0.58);
       }
     }
   }
@@ -600,16 +655,40 @@ class FireballWorld {
     final to = target - p.pos;
     final distance = _length(to);
 
-    if (distance > 8) {
-      final dir = _normalize(to);
-      p.vel = dir * fieldWidth * speedFactor;
+    Offset desired = Offset.zero;
+    if (distance > 7) {
+      desired = _normalize(to);
+    }
+
+    p.desiredDir = desired;
+
+    final maxSpeed = fieldWidth * speedFactor;
+    final acceleration = fieldWidth * 1.15;
+
+    if (_length(desired) > 0) {
+      p.vel = _moveTowardVelocity(p.vel, desired * maxSpeed, acceleration * dt);
     } else {
-      p.vel *= 0.78;
+      p.vel = _moveTowardVelocity(p.vel, Offset.zero, maxSpeed * 6.0 * dt);
     }
 
     p.pos += p.vel * dt;
     p.pos = _clampInside(p.pos, p.radius);
   }
+
+  Offset _moveTowardVelocity(Offset current, Offset target, double maxDelta) {
+    final diff = target - current;
+    final dist = _length(diff);
+
+    if (dist <= maxDelta || dist == 0) {
+      return target;
+    }
+
+    return current + _normalize(diff) * maxDelta;
+  }
+
+  // ============================================================
+  // COLLISIONS AND DEFENSE
+  // ============================================================
 
   void _resolvePlayerCollisions() {
     for (int i = 0; i < players.length; i++) {
@@ -619,7 +698,7 @@ class FireballWorld {
 
         final diff = b.pos - a.pos;
         final dist = _length(diff);
-        final minDist = a.radius + b.radius + 1.2;
+        final minDist = a.radius + b.radius + 0.8;
 
         if (dist > 0 && dist < minDist) {
           final n = _normalize(diff);
@@ -628,6 +707,10 @@ class FireballWorld {
           a.pos -= n * (overlap * 0.5);
           b.pos += n * (overlap * 0.5);
 
+          // التصادم لا يدفع اللاعبين بقوة كبيرة، فقط يبطئهم قليلا.
+          a.vel *= 0.82;
+          b.vel *= 0.82;
+
           a.pos = _clampInside(a.pos, a.radius);
           b.pos = _clampInside(b.pos, b.radius);
         }
@@ -635,15 +718,99 @@ class FireballWorld {
     }
   }
 
+  void _autoDefensivePressure() {
+    if (holderId == null) return;
+
+    final h = holder!;
+
+    for (final p in players) {
+      if (p.id == h.id || p.team == h.team) continue;
+
+      final d = _length(p.pos - h.pos);
+
+      if (d < p.radius + h.radius + 3.5) {
+        // احتكاك جسدي: حامل الكرة يبطأ ويصبح معرضا لفقدان الكرة.
+        h.vel *= 0.88;
+
+        final defenderFacingHolder = _isFacing(p, h.pos);
+        final holderFacingAway = !_isFacing(h, p.pos);
+
+        if (p.stealCooldown == 0 && defenderFacingHolder && holderFacingAway) {
+          _stealBall(p);
+        }
+      }
+    }
+  }
+
+  bool _isFacing(PlayerDisk p, Offset target) {
+    final toTarget = _normalize(target - p.pos);
+    Offset facing = p.desiredDir;
+
+    if (_length(facing) < 0.05) {
+      facing = _length(p.vel) > 2 ? _normalize(p.vel) : toTarget;
+    }
+
+    return _dot(facing, toTarget) > 0.22;
+  }
+
+  void _stealBall(PlayerDisk defender) {
+    if (holderId == null) return;
+
+    final oldHolder = holder!;
+    final stealDir = _normalize(ball - defender.pos);
+
+    holderId = defender.id;
+    defender.stealCooldown = 0.45;
+    defender.tackleCooldown = 0.45;
+
+    oldHolder.vel *= 0.45;
+    defender.vel *= 0.70;
+
+    final aim = _length(defender.desiredDir) > 0.05
+        ? _normalize(defender.desiredDir)
+        : stealDir;
+
+    ball = defender.pos + aim * (defender.radius + ballRadius + 2.0);
+    ballVelocity = Offset.zero;
+  }
+
+  void manualSteal() {
+    user.stealCooldown = 0.32;
+
+    // إذا لا نحمل الكرة، زر STEAL يحاول قطع الكرة من الخصم أو دفع الكرة الحرة.
+    if (holderId != null && holder!.team != user.team) {
+      final h = holder!;
+      final d = _length(user.pos - h.pos);
+      final facing = _isFacing(user, h.pos);
+
+      if (d < user.radius + h.radius + 9 && facing) {
+        _stealBall(user);
+      }
+      return;
+    }
+
+    // إذا الكرة حرة وقريبة: لمسة دفاعية موجهة.
+    final d = _length(ball - user.pos);
+    if (d < user.radius + ballRadius + 12) {
+      final dir = _length(joystickVector) > 0.05 ? _normalize(joystickVector) : lastAim;
+      holderId = null;
+      ballVelocity = dir * fieldWidth * 0.40;
+    }
+  }
+
+  // ============================================================
+  // BALL AND POSSESSION
+  // ============================================================
+
   void _updateBall(double dt) {
     if (holderId != null) return;
 
     ball += ballVelocity * dt;
 
-    // احتكاك أقوى قليلا حتى لا تكون الكرة مجنونة وسريعة.
-    ballVelocity *= pow(0.974, dt * 60).toDouble();
+    // احتكاك قوي حتى تكون الكرة أثقل وأقرب لإحساس Haxball الهادئ.
+    ballVelocity *= pow(0.965, dt * 60).toDouble();
 
-    if (_length(ballVelocity) < 4) {
+    if (_length(ballVelocity) < 3) {
       ballVelocity = Offset.zero;
     }
 
@@ -653,28 +820,28 @@ class FireballWorld {
 
     if (ball.dy - ballRadius < 0) {
       ball = Offset(ball.dx, ballRadius);
-      ballVelocity = Offset(ballVelocity.dx, -ballVelocity.dy * 0.78);
+      ballVelocity = Offset(ballVelocity.dx, -ballVelocity.dy * 0.74);
     }
 
     if (ball.dy + ballRadius > fieldHeight) {
       ball = Offset(ball.dx, fieldHeight - ballRadius);
-      ballVelocity = Offset(ballVelocity.dx, -ballVelocity.dy * 0.78);
+      ballVelocity = Offset(ballVelocity.dx, -ballVelocity.dy * 0.74);
     }
 
     if (!insideGoal) {
       if (ball.dx - ballRadius < 0) {
         ball = Offset(ballRadius, ball.dy);
-        ballVelocity = Offset(-ballVelocity.dx * 0.78, ballVelocity.dy);
+        ballVelocity = Offset(-ballVelocity.dx * 0.74, ballVelocity.dy);
       }
 
       if (ball.dx + ballRadius > fieldWidth) {
         ball = Offset(fieldWidth - ballRadius, ball.dy);
-        ballVelocity = Offset(-ballVelocity.dx * 0.78, ballVelocity.dy);
+        ballVelocity = Offset(-ballVelocity.dx * 0.74, ballVelocity.dy);
       }
     }
   }
 
-  void _tryTakePossession() {
+  void _tryTakeFreeBall() {
     if (holderId != null) return;
 
     PlayerDisk? closest;
@@ -682,7 +849,7 @@ class FireballWorld {
 
     for (final p in players) {
       final d = _length(ball - p.pos);
-      final takeDistance = p.radius + ballRadius + 7;
+      final takeDistance = p.radius + ballRadius + 5.5;
 
       if (d < takeDistance && d < best) {
         best = d;
@@ -699,7 +866,7 @@ class FireballWorld {
   void _updatePossessionBall() {
     if (holderId == null) return;
 
-    final h = _holder();
+    final h = holder!;
     Offset aim;
 
     if (h.isUser) {
@@ -715,8 +882,8 @@ class FireballWorld {
       aim = h.team == Team.red ? const Offset(1, 0) : const Offset(-1, 0);
     }
 
-    // الكرة تبقى أمام اللاعب بمسافة صغيرة، لا تلصق ولا تهرب.
-    final carryDistance = h.radius + ballRadius + 2.5;
+    // مسافة تحكم قصيرة: الكرة أمام القدم، ويمكن للمدافع نزعها عند الاحتكاك.
+    final carryDistance = h.radius + ballRadius + 1.6;
     ball = h.pos + aim * carryDistance;
   }
 
@@ -749,13 +916,15 @@ class FireballWorld {
       return da < db ? a : b;
     });
 
-    final dir = _normalize(mate.pos - ball);
+    final lead = mate.vel * 0.18;
+    final target = mate.pos + lead;
+    final dir = _normalize(target - ball);
 
     holderId = null;
-    ballVelocity = dir * fieldWidth * 0.66;
+    ballVelocity = dir * fieldWidth * 0.48;
   }
 
-  void shoot({required bool power}) {
+  void kick({required bool power}) {
     if (!_userCanKick()) return;
 
     final goal = Offset(fieldWidth, fieldHeight * 0.5);
@@ -765,12 +934,12 @@ class FireballWorld {
     if (_length(joystickVector) > 0.08) {
       final manual = _normalize(joystickVector);
       final toGoal = _normalize(goal - ball);
-      dir = _normalize(manual * 0.72 + toGoal * 0.28);
+      dir = _normalize(manual * 0.80 + toGoal * 0.20);
     } else {
       dir = _normalize(goal - ball);
     }
 
-    final force = power ? fieldWidth * 1.08 : fieldWidth * 0.82;
+    final force = power ? fieldWidth * 0.78 : fieldWidth * 0.56;
 
     holderId = null;
     ballVelocity = dir * force;
@@ -780,7 +949,7 @@ class FireballWorld {
     if (holderId == user.id) return true;
 
     final d = _length(ball - user.pos);
-    return d < user.radius + ballRadius + 14;
+    return d < user.radius + ballRadius + 11;
   }
 
   void _releaseBall(Offset velocity) {
@@ -788,15 +957,15 @@ class FireballWorld {
     ballVelocity = velocity;
   }
 
-  PlayerDisk _holder() {
-    return players.firstWhere((p) => p.id == holderId);
-  }
+  // ============================================================
+  // INPUT
+  // ============================================================
 
   void pointerDown(int pointer, Offset position) {
     _updateButtons();
 
-    if (shootButton.contains(position)) {
-      shoot(power: false);
+    if (kickButton.contains(position)) {
+      kick(power: false);
       return;
     }
 
@@ -806,7 +975,12 @@ class FireballWorld {
     }
 
     if (powerButton.contains(position)) {
-      shoot(power: true);
+      kick(power: true);
+      return;
+    }
+
+    if (stealButton.contains(position)) {
+      manualSteal();
       return;
     }
 
@@ -832,13 +1006,13 @@ class FireballWorld {
   }
 
   Offset _joystickCenter() {
-    return Offset(fieldWidth * 0.13, fieldHeight * 0.77);
+    return Offset(fieldWidth * 0.12, fieldHeight * 0.77);
   }
 
   void _updateJoystick(Offset position) {
     final center = _joystickCenter();
     final delta = position - center;
-    final maxDistance = fieldHeight * 0.105;
+    final maxDistance = fieldHeight * 0.102;
 
     if (_length(delta) > maxDistance) {
       joystickVector = _normalize(delta);
@@ -848,23 +1022,32 @@ class FireballWorld {
   }
 
   void _updateButtons() {
-    final r = fieldHeight * 0.092;
+    final r = fieldHeight * 0.082;
 
-    shootButton = Rect.fromCircle(
-      center: Offset(fieldWidth * 0.88, fieldHeight * 0.73),
+    kickButton = Rect.fromCircle(
+      center: Offset(fieldWidth * 0.89, fieldHeight * 0.73),
       radius: r,
     );
 
     passButton = Rect.fromCircle(
-      center: Offset(fieldWidth * 0.76, fieldHeight * 0.80),
+      center: Offset(fieldWidth * 0.78, fieldHeight * 0.82),
       radius: r * 0.80,
     );
 
     powerButton = Rect.fromCircle(
-      center: Offset(fieldWidth * 0.77, fieldHeight * 0.58),
+      center: Offset(fieldWidth * 0.79, fieldHeight * 0.58),
       radius: r * 0.82,
     );
+
+    stealButton = Rect.fromCircle(
+      center: Offset(fieldWidth * 0.67, fieldHeight * 0.70),
+      radius: r * 0.70,
+    );
   }
+
+  // ============================================================
+  // MATH
+  // ============================================================
 
   Offset _clampInside(Offset p, double radius) {
     return Offset(
@@ -881,6 +1064,10 @@ class FireballWorld {
     final l = _length(o);
     if (l == 0) return Offset.zero;
     return Offset(o.dx / l, o.dy / l);
+  }
+
+  double _dot(Offset a, Offset b) {
+    return a.dx * b.dx + a.dy * b.dy;
   }
 }
 
@@ -904,7 +1091,6 @@ class FireballPainter extends CustomPainter {
   }
 
   void _drawField(Canvas canvas) {
-    // لون قريب من ملاعب Haxball الكلاسيكية: أخضر مسطح بدون فخامة زائدة.
     canvas.drawRect(
       Rect.fromLTWH(0, 0, world.fieldWidth, world.fieldHeight),
       Paint()..color = const Color(0xFF5C8F4B),
@@ -920,7 +1106,6 @@ class FireballPainter extends CustomPainter {
       ..strokeWidth = 1.7
       ..style = PaintingStyle.stroke;
 
-    // حدود الملعب على حواف الهاتف تماما.
     canvas.drawRect(
       Rect.fromLTWH(0, 0, world.fieldWidth, world.fieldHeight),
       line,
@@ -1028,10 +1213,11 @@ class FireballPainter extends CustomPainter {
 
     canvas.drawCircle(p.pos + const Offset(2, 2), p.radius, shadow);
 
-    final body = Paint()
-      ..color = p.color;
-
-    canvas.drawCircle(p.pos, p.radius, body);
+    canvas.drawCircle(
+      p.pos,
+      p.radius,
+      Paint()..color = p.color,
+    );
 
     canvas.drawCircle(
       p.pos,
@@ -1053,12 +1239,23 @@ class FireballPainter extends CustomPainter {
       );
     }
 
+    if (p.tackleCooldown > 0) {
+      canvas.drawCircle(
+        p.pos,
+        p.radius + 6.0,
+        Paint()
+          ..color = Colors.white.withOpacity(0.35)
+          ..strokeWidth = 1.4
+          ..style = PaintingStyle.stroke,
+      );
+    }
+
     _centerText(
       canvas,
       p.name,
       Offset(p.pos.dx, p.pos.dy - p.radius - 8),
       Colors.white,
-      world.fieldHeight * 0.022,
+      world.fieldHeight * 0.021,
       FontWeight.w800,
     );
   }
@@ -1088,12 +1285,12 @@ class FireballPainter extends CustomPainter {
 
   void _drawControls(Canvas canvas) {
     final joyCenter = world._joystickCenter();
-    final joyRadius = world.fieldHeight * 0.105;
+    final joyRadius = world.fieldHeight * 0.102;
 
     canvas.drawCircle(
       joyCenter,
       joyRadius,
-      Paint()..color = Colors.black.withOpacity(0.18),
+      Paint()..color = Colors.black.withOpacity(0.17),
     );
 
     canvas.drawCircle(
@@ -1113,16 +1310,16 @@ class FireballPainter extends CustomPainter {
 
     canvas.drawCircle(
       knob,
-      joyRadius * 0.38,
+      joyRadius * 0.37,
       Paint()..color = Colors.white.withOpacity(0.34),
     );
 
     _drawButton(
       canvas,
-      world.shootButton,
+      world.kickButton,
       'KICK',
       const Color(0xFFD84343),
-      world.fieldHeight * 0.027,
+      world.fieldHeight * 0.024,
     );
 
     _drawButton(
@@ -1130,15 +1327,23 @@ class FireballPainter extends CustomPainter {
       world.passButton,
       'PASS',
       const Color(0xFF3F70C8),
-      world.fieldHeight * 0.023,
+      world.fieldHeight * 0.021,
     );
 
     _drawButton(
       canvas,
       world.powerButton,
-      'POWER',
+      'SHOT',
       const Color(0xFFE28A38),
       world.fieldHeight * 0.021,
+    );
+
+    _drawButton(
+      canvas,
+      world.stealButton,
+      'STEAL',
+      const Color(0xFF555555),
+      world.fieldHeight * 0.018,
     );
   }
 
