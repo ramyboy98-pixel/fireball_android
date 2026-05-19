@@ -32,36 +32,29 @@ jobs:
       - name: Show Flutter version
         run: flutter --version
 
-      - name: Remove old Android folder
+      - name: Create clean Flutter project
         run: |
-          rm -rf android
+          cd ..
+          flutter create -t app fireball_build --platforms=android --project-name fireball_android
 
-      - name: Recreate clean Android project
+      - name: Copy game files into clean project
         run: |
-          flutter create . --platforms=android --project-name fireball_android
+          cp pubspec.yaml ../fireball_build/pubspec.yaml
+          rm -rf ../fireball_build/lib
+          cp -r lib ../fireball_build/lib
+
+      - name: Get packages
+        run: |
+          cd ../fireball_build
           flutter pub get
 
-      - name: Force Java and Kotlin JVM target 17
-        run: |
-          cat >> android/app/build.gradle <<'EOF'
-
-          android {
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
-              }
-          }
-
-          kotlin {
-              jvmToolchain(17)
-          }
-          EOF
-
       - name: Build debug APK
-        run: flutter build apk --debug --android-skip-build-dependency-validation
+        run: |
+          cd ../fireball_build
+          flutter build apk --debug --android-skip-build-dependency-validation
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: fireball-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          path: ../fireball_build/build/app/outputs/flutter-apk/app-debug.apk
