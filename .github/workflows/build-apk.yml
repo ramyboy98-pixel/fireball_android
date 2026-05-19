@@ -32,10 +32,30 @@ jobs:
       - name: Show Flutter version
         run: flutter --version
 
-      - name: Repair Flutter Android project
+      - name: Remove old Android folder
+        run: |
+          rm -rf android
+
+      - name: Recreate clean Android project
         run: |
           flutter create . --platforms=android --project-name fireball_android
           flutter pub get
+
+      - name: Force Java and Kotlin JVM target 17
+        run: |
+          cat >> android/app/build.gradle <<'EOF'
+
+          android {
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+
+          kotlin {
+              jvmToolchain(17)
+          }
+          EOF
 
       - name: Build debug APK
         run: flutter build apk --debug --android-skip-build-dependency-validation
